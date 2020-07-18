@@ -1,9 +1,3 @@
-def format_price(pence):
-    return int(pence)/100.0
-
-def print_formatted_price(prefix, pence):
-    print(prefix, ' : ', format_price(pence))
-
 def get_total_payments(debt, rate, months, monthly):
     total_rent_paid = 0
     total_debt_paid = 0
@@ -16,35 +10,38 @@ def get_total_payments(debt, rate, months, monthly):
         total_debt_paid += debt_payment
         remaining_debt -= debt_payment
 
-    return total_debt_paid, total_rent_paid
+    return round(total_debt_paid, 2), round(total_rent_paid, 2)
 
 
 def calculate_monthly(debt, rate, months):
-    increment = 100000
-    monthly = increment
-    previous_monthly = 0
-    while increment > 0:
+    begin = 0
+    end = debt
+    while 1:
+        monthly = round((begin + end)/2.0, 2)
         debt_paid, rent_paid = get_total_payments(debt, rate, months, monthly)
         if debt_paid > debt:
-            monthly -= increment
-            increment = int(increment/10)
-            if not increment:
+            if end == monthly:
                 break
+            end = monthly
         elif debt_paid < debt:
-            monthly += increment
+            if begin == monthly:
+                monthly += 0.01
+                break
+            begin = monthly
         else:
             break
-    return monthly + 1
+    return monthly
 
 
-debt = 20000000 # pence
+debt = 200000 # + 38000
 years = 20
 months = years*12
-rate = 5
+rate = 8
 
 monthly = calculate_monthly(debt, rate, months)
-debt_paid, rent_paid = get_total_payments(debt, rate, months/2.0, monthly)
+debt_paid, rent_paid = get_total_payments(debt, rate, 10*12, monthly)
 
-print_formatted_price('monthly', monthly)
-print_formatted_price('total debt paid', debt_paid)
-print_formatted_price('total rent paid', rent_paid)
+print('monthly : ', monthly)
+print('total debt paid : ', debt_paid)
+print('total rent paid : ', rent_paid)
+print('total cost : ', debt_paid + rent_paid)
